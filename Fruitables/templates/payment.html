@@ -1,0 +1,150 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<!-- <p style="margin-top: 200px;">Amount = Rs.{{ amount }} </p>
+<p>{{ order_id }}</p> 
+<p>{{ api_key }}</p>  -->
+<div class="container-fluid page-header-payment py-5">
+    <!-- <h1 class="text-center text-white display-6">Cart</h1>
+    <ol class="breadcrumb justify-content-center mb-0">
+        <li class="breadcrumb-item"><a href="#">Home</a></li>
+        <li class="breadcrumb-item"><a href="#">Pages</a></li>
+        <li class="breadcrumb-item active text-white">Cart</li>
+    </ol> -->
+</div>
+
+<div class="table-responsive" >
+    <table class="table">
+        <thead>
+            <tr>
+                <th scope="col">Products</th>
+                <th scope="col">Name</th>
+                <th scope="col">Price</th>
+                <th scope="col">Quantity</th>
+                <th scope="col">Total</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in cart_items %}
+            <tr>
+                <th scope="row">
+                    <div class="d-flex align-items-center mt-2">
+                        <img src="{% if item.product.image %}{{item.product.image.url}} {% else %} {% endif %}"
+                            class="img-fluid rounded-circle" style="width: 90px; height: 90px;" alt="">
+                    </div>
+                </th>
+                <td class="py-5">{{ item.product.title }}</td>
+                <td class="py-5">{{ item.product.price }}</td>
+                <td class="py-5">{{ item.quantity }}</td>
+                <td class="py-5">Rs{{item.item_total}}</td>
+            </tr>
+            {% empty %}
+            <p>Your cart is empty.</p>
+            {% endfor %}
+            <tr>
+                <th scope="row">
+                </th>
+                <td class="py-5"></td>
+                <td class="py-5"></td>
+                <td class="py-5">
+                    <p class="mb-0 text-dark py-3">Subtotal</p>
+                </td>
+                <td class="py-5">
+                    <div class="py-3 border-bottom border-top">
+                        <p class="mb-0 text-dark">Rs{{total_price}}</p>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <th scope="row">
+                </th>
+                <td class="py-5">
+                    <p class="mb-0 text-dark py-4">Shipping</p>
+                </td>
+                <td colspan="3" class="py-5">
+                    <div class="form-check text-start">
+                        <input type="checkbox" class="form-check-input bg-primary border-0" id="Shipping-1"
+                            name="Shipping-1" value="Shipping">
+                        <label class="form-check-label" for="Shipping-1">Free Shipping</label>
+                    </div>
+                    <div class="form-check text-start">
+                        <input type="checkbox" class="form-check-input bg-primary border-0" id="Shipping-2"
+                            name="Shipping-1" value="Shipping">
+                        <label class="form-check-label" for="Shipping-2">Flat rate: 0.00</label>
+                    </div>
+                    <div class="form-check text-start">
+                        <input type="checkbox" class="form-check-input bg-primary border-0" id="Shipping-3"
+                            name="Shipping-1" value="Shipping">
+                        <label class="form-check-label" for="Shipping-3">Local Pickup: Rs.0.00</label>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <th scope="row">
+                </th>
+                <td class="py-5">
+                    <p class="mb-0 text-dark text-uppercase py-3">TOTAL</p>
+                </td>
+                <td class="py-5"></td>
+                <td class="py-5"></td>
+                <td class="py-5">
+                    <div class="py-3 border-bottom border-top">
+                        <p class="mb-0 text-dark">Rs{{ amount }}</p>
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+<div style="display: flex;justify-content: end;">
+    <button style="padding-inline: 100px !important;" class="btn border-secondary py-3 px-4 text-uppercase text-primary" id="rzp-button1">Pay</button>
+</div>
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script>
+    var options = {
+        "key": "{{ api_key }}",  // Enter the Key ID generated from the Dashboard
+        "name": "Fruitables",      // Your business name
+        "description": "Test Transaction",  // Short description of the payment
+        "image": "https://example.com/your_logo",  // Your logo URL
+        "order_id": "{{ order_id }}",  // Pass the Razorpay Order ID here
+        // redirect: true,
+        "handler": function (response) {
+            alert(response.razorpay_payment_id);
+            alert(response.razorpay_order_id);
+            alert(response.razorpay_signature);
+        },
+        "callback_url": "{{callback_url}}",
+        "prefill": {  // Pre-fill customer information for better conversion rates
+            "name": "Gaurav Kumar",  // Your customer's name
+            "email": "gaurav.kumar@example.com",  // Customer's email
+            "contact": "9000090000"  // Customer's phone number
+        },
+        "notes": {
+            "address": "Razorpay Corporate Office"  // Notes about the order
+        },
+        "theme": {
+            "color": "#3399cc"  // Customize the button's color
+        }
+    };
+
+    var rzp1 = new Razorpay(options);
+
+    // Error handling when the payment fails
+    rzp1.on('payment.failed', function (response) {
+        alert(response.error.code);
+        //     alert(response.error.description);
+        //     alert(response.error.source);
+        //     alert(response.error.step);
+        //     alert(response.error.reason);
+        //     alert(response.error.metadata.order_id);
+        //     alert(response.error.metadata.payment_id);
+    });
+
+    // Trigger the Razorpay checkout when the button is clicked
+    document.getElementById('rzp-button1').onclick = function (e) {
+        rzp1.open();
+        e.preventDefault();
+    }
+</script>
+{% endblock %}

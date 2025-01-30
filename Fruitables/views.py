@@ -1,5 +1,5 @@
 from django.shortcuts import render,redirect, get_object_or_404,HttpResponse
-from .models import User ,Product,Category,Order, ShippingAddress
+from .models import User ,Product,Category,Order, ShippingAddress,Contact
 from django.contrib.auth import authenticate, login ,logout
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -365,26 +365,39 @@ def payment(request, order_id = None):
 @csrf_exempt
 @login_required
 def order_complete(request, order_id=None):
-    print(order_id,'????????????????????????????????????????????????')
-    # order_id = request.GET.get('order_id')
-    # print(order_id,'kkkkkkkkkkkkkkkkkkkkkkkk')
-    # if order_id:
-    #     orders = Order.objects.filter(id=order_id)
-    #     print(orders,"idididididididididididididididididididididididid")
-    # else:
     orders = Order.objects.filter(user=request.user)
-    print(orders,'orderrrrrrrrrrrrrrrrrrrrrrrrrrrrrr')
 
     context = {
-        'orders':orders,
-        # 'created_date':orders.created_at,
-        # 'orderid':order_id,
-        # 'order_name':order.product.title,
-        # 'order_quantity':order.product.quantity,
-        # 'order_price':order.product.price
+        'orders':orders,        
     }
     return render(request, 'order.html',context)
 
-@csrf_exempt
-def callback(request):
-    return HttpResponse("payment succesfull")
+
+def contact(request):
+    if request.method == 'POST':
+        name = request.POST.get('name')
+        email = request.POST.get('email')
+        message = request.POST.get('message')
+
+        Contact.objects.create(
+                name=name,
+                email=email,
+                message=message
+            )
+
+    return render(request, 'contact.html')
+
+def shop(request):
+    products = Product.objects.all()
+    categories = Category.objects.all()
+    search_value = request.POST.get('search_value', '')
+    if search_value:
+        products = Product.objects.filter(title__icontains=search_value)
+    else:
+        print("else",search_value)
+
+    cart = request.session.get('cart', {})
+    total_quantity = sum(cart_item['quantity'] for cart_item in cart.values())
+
+    context = {'products':products,'categories':categories,'search_value':search_value,'total_quantity': total_quantity}
+    return render(request,'shop.html',context)

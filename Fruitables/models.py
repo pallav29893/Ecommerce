@@ -49,6 +49,7 @@ class Order(models.Model):
     STATUS_CHOICES = [
         ('Pending', 'Pending'),
         ('Paid', 'Paid'),
+        ('Unpaid', 'Unpaid'),
         ('Shipped', 'Shipped'),
         ('Cancelled', 'Cancelled'),
     ]
@@ -58,7 +59,7 @@ class Order(models.Model):
     quantity = models.PositiveIntegerField()
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='Pending')
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='Unpaid')
     total_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0)
 
     def __str__(self):
@@ -83,3 +84,15 @@ class ShippingAddress(models.Model):
 
     def __str__(self):
         return f"Shipping Address for Order {self.order.id}"
+
+class Contact(models.Model):
+    name = models.CharField(max_length=255)
+    email = models.EmailField()
+    message = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    timestamp = models.DateTimeField(auto_now_add=True, editable=False)
+    utimestamp = models.DateTimeField(auto_now=True, editable=False)
+    
+
+    def _str_(self):
+        return self.name

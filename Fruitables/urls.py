@@ -18,7 +18,9 @@ urlpatterns = [
     # path('checkout/shipping/<int:order_id>/', views.shipping_address, name='shipping_address'),
     path('checkout/payment/<int:order_id>/', views.payment, name='payment'),
     path('order_complete/', views.order_complete, name='order_complete'),   
-    path("callback/", views.callback, name="callback"),
+    path("contact/", views.contact, name="contact"),
+    path("shop/", views.shop, name="shop"),
+
 
 
 ]

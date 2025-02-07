@@ -35,12 +35,16 @@ background: linear-gradient(to right, rgba(132, 250, 176, 1), rgba(143, 211, 244
             <div class="card-body p-5">
               <h2 class="text-uppercase text-center mb-5">Login</h2>
 
+              {% if error_message %}
+                  <P style="color: red;">{{error_message}}</P>
+              {% endif %}
+
               <form method="POST" enctype="multipart/form-data">
                 {% csrf_token %}
-            
+
                 <div data-mdb-input-init class="form-outline mb-4">
-                    <input type="text" id="name" class="form-control form-control-lg" name="name" />
-                    <label class="form-label" for="form3Example1cg">Your Name</label>
+                    <input type="text" id="name" class="form-control form-control-lg" name="name" placeholder="Enter Your Name"/>
+                    <!-- <label class="form-label" for="form3Example1cg">Your Name</label> -->
                 </div>
             
                 <!-- <div data-mdb-input-init class="form-outline mb-4">
@@ -48,10 +52,11 @@ background: linear-gradient(to right, rgba(132, 250, 176, 1), rgba(143, 211, 244
                     <label class="form-label" for="form3Example3cg">Your Email</label>
                 </div> -->
             
-                <div data-mdb-input-init class="form-outline mb-4">
-                    <input type="password" id="password" class="form-control form-control-lg" name="password" />
-                    <label class="form-label" for="form3Example4cg">Password</label>
-                </div>
+                <div style="position: relative;">
+                  <input type="password" id="password" class="form-control form-control-lg" name="password" placeholder="Enter Password" />
+                  <i id="togglePassword" style="position: absolute; top: 15px;right: 15px;cursor: pointer;" class="fa-regular fa-eye"></i>
+              </div>
+              <!-- <label class="form-label" for="form3Example4cg">Password</label> -->
             
                 <div class="form-check d-flex justify-content-center mb-5">
                     <input class="form-check-input me-2" type="checkbox" value="" id="form2Example3cg" name="agree" />
@@ -59,9 +64,6 @@ background: linear-gradient(to right, rgba(132, 250, 176, 1), rgba(143, 211, 244
                         I agree to all statements in <a href="#!" class="text-body"><u>Terms of Service</u></a>
                     </label>
                 </div>
-                {% if error_message %}
-            {{error_message}}
-            {% endif %}
                 <div class="d-flex justify-content-center">
                     <button type="submit" class="btn btn-success btn-block btn-lg gradient-custom-4 text-body">Log In </button>
                 </div>
@@ -75,4 +77,23 @@ background: linear-gradient(to right, rgba(132, 250, 176, 1), rgba(143, 211, 244
     </div>
   </div>
 </section>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+
+<script>
+  document
+    .getElementById("togglePassword")
+    .addEventListener("click", function () {
+      const passwordField = document.getElementById("password");
+      const type =
+        passwordField.getAttribute("type") === "password"
+          ? "text"
+          : "password";
+      passwordField.setAttribute("type", type);
+      this.className =
+        type === "password"
+          ? "fa-regular fa-eye"
+          : "fa-regular fa-eye-slash";
+    });
+</script>
 {% endblock %}

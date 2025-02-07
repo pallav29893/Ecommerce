@@ -17,6 +17,7 @@ class User(AbstractUser):
     state = models.CharField(max_length=250, null=True, blank=True)
     country = models.CharField(max_length=250, null=True, blank=True)
     user_profile_image = models.ImageField(upload_to='user', null=True, blank=True)
+    face_encoding = models.JSONField(null=True, blank=True)  
     created_at = models.DateTimeField(auto_now_add=True, editable=False)
     updated_at = models.DateTimeField(auto_now=True, editable=False)
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='Inactive')
@@ -44,6 +45,15 @@ class Product(models.Model):
 
     def __str__(self):
         return self.title
+    
+class Wishlist(models.Model):
+    user = models.ForeignKey(User,on_delete=models.CASCADE)
+    wished_item = models.ForeignKey(Product,on_delete=models.CASCADE)
+    slug = AutoSlugField(populate_from='wished_item')
+    added_date = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.wished_item.title
  
 class Order(models.Model):
     STATUS_CHOICES = [

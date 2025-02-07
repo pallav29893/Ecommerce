@@ -21,10 +21,13 @@
                     <div class="col-lg-12">
                         <div class="row g-4">
                             <div class="col-xl-3">
+                                <form method="POST" action="{% url 'shop' %}">
+                                    {% csrf_token %}
                                 <div class="input-group w-100 mx-auto d-flex">
-                                    <input type="search" class="form-control p-3" placeholder="keywords" aria-describedby="search-icon-1">
-                                    <span id="search-icon-1" class="input-group-text p-3"><i class="fa fa-search"></i></span>
+                                    <input type="search" class="form-control p-3" placeholder="keywords" name="search_value" value="{{ search_value }}" aria-describedby="search-icon-1">
+                                    <span id="search-icon-1" class="input-group-text p-3"><button type="submit" style="border: 0px;"><i class="fa fa-search"></i></button></span>
                                 </div>
+                                </form>
                             </div>
                             <div class="col-6"></div>
                             <div class="col-xl-3">
@@ -50,7 +53,7 @@
                                                 <li>
                                                     <div class="d-flex justify-content-between fruite-name">
                                                         <a href="{% url 'category' category.slug %}"><i class="fas fa-apple-alt me-2"></i>{{ category }}</a>
-                                                        <span>(3)</span>
+                                                        <span>{{ category.counts|default:0 }}</span>
                                                     </div>
                                                 </li>
                                                 {% endfor %}

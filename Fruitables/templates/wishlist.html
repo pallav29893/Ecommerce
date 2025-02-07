@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+
+<div class="container-fluid fruite py-5">
+    <div class="container py-5">
+        <h1>Wishlist items</h1>
+        {% if messages %}
+        <div class="alert alert-success">
+            {% for message in messages %}
+                <p>{{ message }}</p>
+            {% endfor %}
+        </div>
+        {% endif %}
+        <div class="tab-class text-center">
+            <div class="tab-content">
+                <div id="tab-1" class="tab-pane fade show p-0 active">
+                    <div class="row g-4">
+                        <div class="col-lg-12">
+                            <div class="row g-4">
+                                {% for wishlist in wishlist_items %}
+                                <div class="col-md-6 col-lg-4 col-xl-3">
+                                    <div class="rounded position-relative fruite-item">
+                                        <div class="fruite-img">
+                                            <a href="{% url 'product_details' wishlist.wished_item.id %}">
+                                                <img src="{% if wishlist.wished_item.image %}{{wishlist.wished_item.image.url}}{% else %} {% endif %}"
+                                                    class="img-fluid w-100 rounded-top" alt="">
+                                            </a>
+                                        </div>
+                                        <div class="text-white bg-secondary px-3 py-1 rounded position-absolute"
+                                            style="top: 10px; left: 10px;">{{wishlist.wished_item.category}}</div>
+                                        <div class="p-4 border border-secondary border-top-0 rounded-bottom">
+                                            <div class="d-flex justify-content-around align-items-center">
+                                                <h4 class="mb-0">{{wishlist.wished_item.title}}</h4>
+                                                <a href="{% url 'remove_from_wishlist' wishlist.wished_item.slug %}">
+                                                <button class="btn btn-md rounded-circle bg-light border mt-4">
+                                                    <i class="fa fa-times text-danger"></i>
+                                                </button>
+                                            </a>
+                                            </div>
+                                            <p>{{wishlist.wished_item.description|truncatechars:50}}</p>
+                                            <div class="d-flex justify-content-between flex-lg-wrap">
+                                                <p class="text-dark fs-5 fw-bold mb-0">
+                                                    Rs.{{wishlist.wished_item.price}}/kg</p>
+                                                {% if user.is_authenticated %}
+                                                <a href="{% url 'add_cart' product_id=wishlist.wished_item.id %}"
+                                                    class="btn border border-secondary rounded-pill px-3 text-primary"><i
+                                                        class="fa fa-shopping-bag me-2 text-primary"></i> Add to
+                                                    cart</a>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+{% endblock %}

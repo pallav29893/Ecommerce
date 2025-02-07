@@ -32,6 +32,12 @@
     <!-- <link href="../static/css/style.css" rel="stylesheet"> -->
     <link href="{% static 'css/style.css' %}" rel="stylesheet">
 
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+    <link rel="shortcut icon" href="http://MY-CDN.example.com/favicon.ico" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/5.0.0/normalize.min.css">
+
+
  
 
     {% block style %} {% endblock %}
@@ -92,6 +98,9 @@
                             <div class="dropdown-menu m-0 bg-secondary rounded-0">
                                 <a href="{% url 'order_complete' %}" class="dropdown-item">orders</a>
                                 <a href="{% url 'checkout' %}" class="dropdown-item">Checkout</a>
+                                <a href="{% url 'qr_code' %}" class="dropdown-item">QR Code</a>
+                                <a href="{% url 'send_sms' %}" class="dropdown-item">send sms </a>
+                                <a href="{% url 'view_wishlist' %}" class="dropdown-item">Wishlist </a>
                                 <!-- <a href="testimonial.html" class="dropdown-item">Testimonial</a>
                                 <a href="404.html" class="dropdown-item">404 Page</a> -->
                             </div>
@@ -118,7 +127,6 @@
         </div>
     </div>
     <!-- Navbar End -->
-
 
     <!-- Modal Search Start -->
     <div class="modal fade" id="searchModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
@@ -274,6 +282,9 @@
     <!-- Template Javascript -->
     <script src="{% static 'js/main.js' %}"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <script src="https://kit.fontawesome.com/yourcode.js" crossorigin="anonymous"></script>
+
 
 </body>
 

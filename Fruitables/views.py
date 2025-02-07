@@ -1,5 +1,5 @@
 from django.shortcuts import render,redirect, get_object_or_404,HttpResponse
-from .models import User ,Product,Category,Order, ShippingAddress,Contact
+from .models import User ,Product,Category,Order, ShippingAddress,Contact,Wishlist
 from django.contrib.auth import authenticate, login ,logout
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -7,7 +7,14 @@ from django.http import JsonResponse
 import razorpay
 from django.conf import settings
 from django.views.decorators.csrf import csrf_exempt
-
+from qrcode import *
+import time
+from twilio.rest import Client
+import face_recognition
+import cv2
+import numpy as np
+# from .recognition import recognize_face  
+# import twilio
 
 
 # Create your views here.
@@ -17,6 +24,7 @@ def home(request):
     products = Product.objects.all()
     print("products>>>>>>>>>>>>>>>>>>>>>",products)
     categories = Category.objects.all()
+    wishlist_items = Wishlist.objects.all()
     search_value = request.POST.get('search_value', '')
     if search_value:
         print("search_valuesearch_valuesearch_valueddddddddddddddddd",search_value)
@@ -28,7 +36,7 @@ def home(request):
     cart = request.session.get('cart', {})
     total_quantity = sum(cart_item['quantity'] for cart_item in cart.values())
 
-    context = {'products':products,'categories':categories,'search_value':search_value,'total_quantity': total_quantity}
+    context = {'products':products,'categories':categories,'search_value':search_value,'total_quantity': total_quantity,'wishlist_items':wishlist_items}
     return render(request,'index.html',context)
 
 
@@ -195,74 +203,6 @@ def update_cart(request):
 
     return JsonResponse({'status': 'failed'})
 
-# @login_required
-# def checkout(request, order_id=None):
-#     print(order_id,'mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm')
-#     cart = request.session.get('cart', {})
-
-#     cart_items = []
-#     total_price = 0
-#     total_quantity = 0
-
-#     for product_id, cart_item in cart.items():
-#         product = Product.objects.get(id=product_id)
-#         quantity = cart_item['quantity']
-#         item_total = product.price * quantity
-#         total_price += item_total
-#         total_quantity += quantity
-#         cart_items.append({'product': product, 'quantity': quantity, 'item_total': item_total})
-
-#     if order_id:
-#         order = Order.objects.get(id=order_id, user=request.user)
-#     else:
-#         order = Order.objects.create(user=request.user)
-
-#     if request.method == 'POST':
-#         address_line1 = request.POST.get('address')
-#         print("addrreeessssssssssssssssssss",address_line1)
-#         city = request.POST.get('city')
-#         print("cityyyyyyyyyyyyyyyyy",city)
-#         state = request.POST.get('state')
-#         print("stateeeeeeeeeeeeeeee",state)
-#         postal_code = request.POST.get('postal_code')
-#         print("postallllllllllllllllllllllllllllll",postal_code)
-#         country = request.POST.get('country')
-
-#         address_line2 = request.POST.get('address_line2', '')
-
-#         ShippingAddress.objects.create(
-#             order=order,
-#             address_line1=address_line1,
-#             address_line2=address_line2,  # Optional
-#             city=city,
-#             state=state,
-#             postal_code=postal_code,
-#             country=country
-#         )
-
-#         return redirect('payment', order_id=order.id)     
-
-#     # product_ids = list(cart.keys())
-#     # products = Product.objects.filter(id__in=product_ids)
-
-#     # for product in products:
-#     #     cart_item = cart.get(str(product.id))  
-#     #     if cart_item:
-#     #         quantity = cart_item['quantity']
-#     #         OrderItem.objects.create(order=order, product=product, quantity=quantity)
-
-#     order.calculate_total()
-
-#     # request.session['cart'] = {}
-
-#     return render(request, 'checkout.html', {
-#         'order': order, 
-#         'cart_items': cart_items, 
-#         'total_price': total_price, 
-#         'total_quantity': total_quantity
-#     })
-
-
 @login_required
 def checkout(request):
     cart = request.session.get('cart', {})
@@ -362,6 +302,37 @@ def payment(request, order_id = None):
 
     return render(request, 'payment.html',context)
 
+@login_required
+def add_to_wishlist(request,slug):
+
+   products = get_object_or_404(Product,slug=slug)
+
+   wished_item,created = Wishlist.objects.get_or_create(wished_item=products,slug = products.slug,user = request.user)
+   print(wished_item,"wished itemmmmmmmmmmmmmmmmmmmmmmmmmmmmm")
+   messages.success(request,'The item was added to your wishlist')
+
+   wishlist_items = Wishlist.objects.filter(user=request.user)
+
+#    return render(request, 'wishlist.html', {'wishlist_items': wishlist_items})
+   return redirect('view_wishlist')
+
+def view_wishlist(request):
+    wishlist_items = Wishlist.objects.filter(user=request.user)
+    print(wishlist_items,":::::::::::::::::::::::::")
+    context = {'wishlist_items':wishlist_items}
+    return render(request,'wishlist.html',context)
+
+@login_required
+def remove_from_wishlist(request, slug):
+    product = get_object_or_404(Product, slug=slug)
+    wishlist_item = get_object_or_404(Wishlist, wished_item=product, user=request.user)
+
+    wishlist_item.delete()
+
+    messages.success(request, 'Item removed from your wishlist')
+    return redirect('view_wishlist') 
+
+
 @csrf_exempt
 @login_required
 def order_complete(request, order_id=None):
@@ -401,3 +372,73 @@ def shop(request):
 
     context = {'products':products,'categories':categories,'search_value':search_value,'total_quantity': total_quantity}
     return render(request,'shop.html',context)
+
+def qr_gen(request):
+    if request.method == 'POST':
+        data = request.POST['data']
+        img = make(data)
+        img_name = 'qr' + str(time.time()) + '.png'
+        img.save(settings.MEDIA_ROOT + '/' + img_name)
+        return render(request, 'qrcode.html', {'img_name': img_name})
+    return render(request, 'qrcode.html')
+
+
+def send_sms(to_number, message):
+    client = Client(settings.TWILIO_ACCOUNT_SID, settings.TWILIO_AUTH_TOKEN)
+    try:
+        message = client.messages.create(
+            body=message,
+            from_=settings.TWILIO_PHONE_NUMBER,
+            to=to_number
+        )
+        return message.sid
+    except Exception as e:
+        return str(e)
+
+
+def send_sms_view(request):
+    # Example phone number (make sure to use a valid number)
+    to_number = "+919024428600"
+    message = "Hello, this is a test SMS from Django!"
+    result = send_sms(to_number, message)
+
+    if isinstance(result, str) and result.startswith('SM'):
+        return JsonResponse({'status': 'success', 'message_sid': result})
+    else:
+        return JsonResponse({'status': 'error', 'message': result})
+
+
+
+
+def get_user_face_encodings():
+    users = User.objects.all()
+    encodings = []
+    for user in users:
+        encodings.append(np.frombuffer(user.face_encoding, dtype=np.float64))
+    return encodings
+
+def recognize_face(request):
+    # Load the image file into a numpy array
+    image = face_recognition.load_image_file(request.FILES['image'])
+
+    # Get face encodings for the input image
+    input_face_encoding = face_recognition.face_encodings(image)[0]
+
+    # Get stored user face encodings from the database
+    known_face_encodings = get_user_face_encodings()
+
+    # Compare the input face encoding with stored encodings
+    matches = face_recognition.compare_faces(known_face_encodings, input_face_encoding)
+
+    if True in matches:
+        return HttpResponse("Face recognized!")
+    else:
+        return HttpResponse("Face not recognized.")
+
+
+
+def upload_image(request):
+    if request.method == 'POST' and request.FILES.get('image'):
+        response = recognize_face(request)
+        return render(request, 'upload_result.html', {'response': response})
+    return render(request, 'profile.html')

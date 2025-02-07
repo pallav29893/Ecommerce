@@ -12,7 +12,9 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 
 from pathlib import Path
 import os
+from dotenv import load_dotenv
 
+load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -134,9 +136,10 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+RAZORPAY_API_KEY = os.getenv('RAZORPAY_API_KEY')
+RAZORPAY_API_SECRET_KEY = os.getenv('RAZORPAY_API_SECRET_KEY')
 
-# Key_Id = rzp_test_S3mPGgntaUBTwB
-# secret_key = wjssHQvG6FVvMuMDkIeoTzo2
 
-RAZORPAY_API_KEY = 'rzp_test_S3mPGgntaUBTwB'
-RAZORPAY_API_SECRET_KEY = 'wjssHQvG6FVvMuMDkIeoTzo2'
+TWILIO_ACCOUNT_SID = os.getenv('TWILIO_ACCOUNT_SID')
+TWILIO_AUTH_TOKEN = os.getenv('TWILIO_AUTH_TOKEN')
+TWILIO_PHONE_NUMBER = os.getenv('TWILIO_PHONE_NUMBER')

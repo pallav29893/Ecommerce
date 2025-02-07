@@ -20,6 +20,16 @@ urlpatterns = [
     path('order_complete/', views.order_complete, name='order_complete'),   
     path("contact/", views.contact, name="contact"),
     path("shop/", views.shop, name="shop"),
+    path('qrcode', views.qr_gen, name='qr_code'),
+    path('send_sms/', views.send_sms_view, name='send_sms'),
+    path('upload/', views.upload_image, name='upload_image'),
+    path('add-wishlist/<str:slug>/', views.add_to_wishlist, name='wishlist'),
+    path('wishlist/',views.view_wishlist,name='view_wishlist'),
+    path('wishlist/remove/<slug:slug>/', views.remove_from_wishlist, name='remove_from_wishlist'),
+
+
+
+
 
 
 
